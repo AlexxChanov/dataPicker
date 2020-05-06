@@ -22,10 +22,10 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DaysViewHolder
 
    private int numberItem;
     private ArrayList<String> monthsItem;
-    private int[] yearsItem;
+    private String[] yearsItem;
 
 
-    public DateAdapter(int[] numberOfItems){
+    public DateAdapter(String[] numberOfItems){
         yearsItem = numberOfItems;
     }
 
