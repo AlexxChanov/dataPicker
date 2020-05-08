@@ -6,35 +6,32 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
-
-import android.app.Activity;
-import android.app.DatePickerDialog;
+import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Iterator;
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
+    public int d;
     boolean flag = true;
-    private RecyclerView daysList, monthsList, yearsList,hoursList,minutesList;
+    TextView currentDate;
+    private RecyclerView daysList, monthsList, yearsList, hoursList, minutesList;
     private DateAdapter dateAdapter1, dateAdapter2, dateAdapter3;
-    private ArrayList<String> months;
+    private ArrayList<String> months = new ArrayList<>(Arrays.asList(" - ", " - ", "янв.", "фев", "март", "апрель", "май", "июнь", "июль", "авг.", "сент.", "окт.", "нояб.", "дек.", "-", "-"));
     Button date, time, save;
     private String[] years = new String[30];
-    private String[] days = new String[32];
+    private String[] days = new String[35];
     private int firstYear = 2000;
     private int firstDay = 1;
     private int firstMinute = 0;
@@ -44,10 +41,9 @@ public class MainActivity extends AppCompatActivity {
     TextView textView;
     private String[] dateToast;
     private String[] timeToast;
-    private int previousTotal = 0;
-    private boolean loading = true;
-    private int visibleThreshold = 5;
-    int firstVisibleItem, visibleItemCount, totalItemCount;
+    private MediaPlayer scrollSong = new MediaPlayer();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         hoursList = findViewById(R.id.recyclerViewHours);
         minutesList = findViewById(R.id.recyclerViewMinutes);
         textView = findViewById(R.id.currentDate);
+        scrollSong = MediaPlayer.create(this, R.raw.scroll_sound);
         dateToast = new String[4];
         timeToast = new String[5];
         dateToast[0] = "Выбранная дата : ";
@@ -81,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         years[28] = " - ";
         days[0] = " - ";
         days[1] = " - ";
-        days[30] = " - ";
-        days[31] = " - ";
+        days[33] = " - ";
+        days[34] = " - ";
         hours[0] = " - ";
         hours[1] = " - ";
         hours[26] = " - ";
@@ -91,8 +88,6 @@ public class MainActivity extends AppCompatActivity {
         minutes[62] = " - ";
         minutes[0] = " - ";
         minutes[1] = " - ";
-
-
 
 
         final LinearLayoutManager layoutManager1 = new LinearLayoutManager(this);
@@ -104,7 +99,9 @@ public class MainActivity extends AppCompatActivity {
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flag=false;
+
+                scrollSong.start();
+                flag = false;
                 firstYear = 2000;
                 firstDay = 1;
                 firstMinute = 0;
@@ -117,10 +114,10 @@ public class MainActivity extends AppCompatActivity {
                 daysList.setVisibility(View.GONE);
                 monthsList.setVisibility(View.GONE);
 
-                for (int n = 2; n < hours.length-2; n++) {
+                for (int n = 2; n < hours.length - 2; n++) {
                     hours[n] = String.valueOf(firstHour++);
                 }
-                for (int n = 2; n < minutes.length-2; n++) {
+                for (int n = 2; n < minutes.length - 2; n++) {
                     minutes[n] = String.valueOf(firstMinute++);
                 }
 
@@ -156,9 +153,30 @@ public class MainActivity extends AppCompatActivity {
                             View centerView = snapHelper1.findSnapView(layoutManager4);
                             int pos = layoutManager4.getPosition(centerView);
                             Log.e("Snapped Item Position:", "" + pos);
+                            scrollSong.start();
+                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+
+                                v.vibrate(500);
+                            }
                             timeToast[1] = String.valueOf(hours[pos]);
                             timeToast[2] = " часов ";
 
+                            int totalItemCount = layoutManager4.getChildCount();
+                            for (int i = 0; i < totalItemCount; i++){
+                                View childView = recyclerView.getChildAt(i);
+                                TextView childTextView = childView.findViewById(R.id.currentDate);
+                                String childTextViewText = (String) (childTextView.getText());
+
+                                if (childTextViewText.equals(hours[pos]))
+                                    childTextView.setTextColor(Color.RED);
+                                else
+                                    childTextView.setTextColor(Color.GRAY);
+
+                            }
                         }
                     }
                 });
@@ -172,8 +190,30 @@ public class MainActivity extends AppCompatActivity {
                             View centerView = snapHelper2.findSnapView(layoutManager5);
                             int pos = layoutManager5.getPosition(centerView);
                             Log.e("Snapped Item Position:", "" + pos);
+                            scrollSong.start();
+                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+
+                                v.vibrate(500);
+                            }
                             timeToast[3] = String.valueOf(minutes[pos]);
                             timeToast[4] = " минут ";
+
+                            int totalItemCount = layoutManager5.getChildCount();
+                            for (int i = 0; i < totalItemCount; i++){
+                                View childView = recyclerView.getChildAt(i);
+                                TextView childTextView = childView.findViewById(R.id.currentDate);
+                                String childTextViewText = (String) (childTextView.getText());
+
+                                if (childTextViewText.equals(minutes[pos]))
+                                    childTextView.setTextColor(Color.RED);
+                                else
+                                    childTextView.setTextColor(Color.GRAY);
+
+                            }
                         }
                     }
                 });
@@ -184,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flag=true;
+                flag = true;
                 firstYear = 2000;
                 firstDay = 1;
                 yearsList.setVisibility(View.VISIBLE);
@@ -193,40 +233,16 @@ public class MainActivity extends AppCompatActivity {
 
                 minutesList.setVisibility(View.GONE);
                 hoursList.setVisibility(View.GONE);
-                for (int n = 2; n < years.length-2; n++) {
+                for (int n = 2; n < years.length - 2; n++) {
                     years[n] = String.valueOf(firstYear++);
                 }
-                for (int n = 2; n < days.length-2; n++) {
+                for (int n = 2; n < days.length - 2; n++) {
                     days[n] = String.valueOf(firstDay++);
                 }
-
-                months = new ArrayList<>();
-
-
-                months.add(" - ");
-                months.add(" - ");
-                months.add("янв.");
-                months.add("фев.");
-                months.add("март.");
-                months.add("апрл.");
-                months.add("май");
-                months.add("июнь");
-                months.add("июль");
-                months.add("авг.");
-                months.add("сент.");
-                months.add("окт.");
-                months.add("нояб.");
-                months.add("дек.");
-                months.add(" - ");
-                months.add(" - ");
-
-
-
 
                 daysList.setLayoutManager(layoutManager1);
                 monthsList.setLayoutManager(layoutManager2);
                 yearsList.setLayoutManager(layoutManager3);
-
 
                 daysList.setHasFixedSize(true);//заранее знаем размер списка и эффективность повысится
                 monthsList.setHasFixedSize(true);
@@ -258,8 +274,31 @@ public class MainActivity extends AppCompatActivity {
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                             View centerView = snapHelper1.findSnapView(layoutManager1);
                             int pos = layoutManager1.getPosition(centerView);
+                            scrollSong.start();
+                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+
+                                v.vibrate(500);
+                            }
                             Log.e("Snapped Item Position:", "" + pos);
-                            dateToast[1] = String.valueOf(days[pos]) + " ";
+                            dateToast[1] = days[pos] + " ";
+
+                            int totalItemCount = layoutManager1.getChildCount();
+                            for (int i = 0; i < totalItemCount; i++){
+                                View childView = recyclerView.getChildAt(i);
+                                TextView childTextView = childView.findViewById(R.id.currentDate);
+                                String childTextViewText = (String) (childTextView.getText());
+
+                                if (childTextViewText.equals(days[pos]))
+                                    childTextView.setTextColor(Color.RED);
+                                else
+                                    childTextView.setTextColor(Color.GRAY);
+
+                            }
+
                         }
                     }
                 });
@@ -272,9 +311,43 @@ public class MainActivity extends AppCompatActivity {
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                             View centerView = snapHelper2.findSnapView(layoutManager2);
                             int pos = layoutManager2.getPosition(centerView);
-                            Log.e("Snapped Item Position:", "" + pos);
-                            dateToast[2] = String.valueOf(months.get(pos)) + " ";
+                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+
+                                v.vibrate(500);
+                            }
+                            scrollSong.start();
+                            if (pos == 5 || pos == 7 || pos == 10 || pos == 12) {
+                                days[32] = " - ";
+                            } else if (pos == 3) {
+                                days[32] = " - ";
+                                days[31] = " - ";
+                                days[30] = " - ";
+                            } else {
+                                days[32] = "31";
+                                days[31] = "30";
+                                days[30] = "29";
+                            }
+
+                            Log.e("Snapped Item Position:", "" + pos);
+                            dateToast[2] = months.get(pos) + " ";
+
+
+                            int totalItemCount = layoutManager2.getChildCount();
+                            for (int i = 0; i < totalItemCount; i++){
+                                View childView = recyclerView.getChildAt(i);
+                                TextView childTextView = childView.findViewById(R.id.currentDate);
+                                String childTextViewText = (String) (childTextView.getText());
+
+                                if (childTextViewText.equals(months.get(pos)))
+                                    childTextView.setTextColor(Color.RED);
+                                else
+                                    childTextView.setTextColor(Color.GRAY);
+
+                            }
                         }
                     }
                 });
@@ -287,47 +360,45 @@ public class MainActivity extends AppCompatActivity {
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                             View centerView = snapHelper3.findSnapView(layoutManager3);
                             int pos = layoutManager3.getPosition(centerView);
-                            Log.e("Snapped Item Position:", "" + pos);
-                            dateToast[3] = String.valueOf(years[pos]) + " ";
+                            scrollSong.start();
+                            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else {
+                                v.vibrate(500);
+                            }
+                            Log.e("Snapped Item Position:", "" + pos);
+                            dateToast[3] = years[pos] + " ";
+
+                            int totalItemCount = layoutManager3.getChildCount();
+                            for (int i = 0; i < totalItemCount; i++){
+                                View childView = recyclerView.getChildAt(i);
+                                TextView childTextView = childView.findViewById(R.id.currentDate);
+                                String childTextViewText = (String) (childTextView.getText());
+
+                                if (childTextViewText.equals(years[pos]))
+                                    childTextView.setTextColor(Color.RED);
+                                else
+                                    childTextView.setTextColor(Color.GRAY);
+
+                            }
                         }
                     }
                 });
             }
         });
 
-        for (int n = 2; n < years.length-2; n++) {
+        for (int n = 2; n < years.length - 2; n++) {
             years[n] = String.valueOf(firstYear++);
         }
-        for (int n = 2; n < days.length-2; n++) {
+        for (int n = 2; n < days.length - 2; n++) {
             days[n] = String.valueOf(firstDay++);
         }
-
-
-        months = new ArrayList<>();
-        months.add(" - ");
-        months.add(" - ");
-        months.add("янв.");
-        months.add("фев.");
-        months.add("март.");
-        months.add("апрл.");
-        months.add("май");
-        months.add("июнь");
-        months.add("июль");
-        months.add("авг.");
-        months.add("сент.");
-        months.add("окт.");
-        months.add("нояб.");
-        months.add("дек.");
-        months.add(" - ");
-        months.add(" - ");
-
-
 
         daysList.setLayoutManager(layoutManager1);
         monthsList.setLayoutManager(layoutManager2);
         yearsList.setLayoutManager(layoutManager3);
-
 
         daysList.setHasFixedSize(true);//заранее знаем размер списка и эффективность повысится
         monthsList.setHasFixedSize(true);
@@ -336,6 +407,19 @@ public class MainActivity extends AppCompatActivity {
         dateAdapter1 = new DateAdapter(days);
         dateAdapter2 = new DateAdapter(months);
         dateAdapter3 = new DateAdapter(years);
+
+//        daysList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView,
+//                                   int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//
+//
+//
+//            }
+//        });
+
+
         daysList.setAdapter(dateAdapter1);
         monthsList.setAdapter(dateAdapter2);
         yearsList.setAdapter(dateAdapter3);
@@ -360,8 +444,35 @@ public class MainActivity extends AppCompatActivity {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE + 2) {
                     View centerView = snapHelper1.findSnapView(layoutManager1);
                     int pos = layoutManager1.getPosition(centerView);
+                    scrollSong.start();
+
+                    //вибрация
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+
+                        v.vibrate(500);
+                    }
+                    //лог
                     Log.e("Snapped Item Position:", "" + pos);
-                    dateToast[1] = String.valueOf(days[pos]) + " ";
+                    //сохранение для вывода в тост
+                    dateToast[1] = days[pos] + " ";
+
+                    int totalItemCount = layoutManager1.getChildCount();
+                    for (int i = 0; i < totalItemCount; i++){
+                        View childView = recyclerView.getChildAt(i);
+                        TextView childTextView = childView.findViewById(R.id.currentDate);
+                        String childTextViewText = (String) (childTextView.getText());
+
+                        if (childTextViewText.equals(days[pos]))
+                            childTextView.setTextColor(Color.RED);
+                        else
+                            childTextView.setTextColor(Color.GRAY);
+
+                    }
+
                 }
             }
         });
@@ -374,12 +485,48 @@ public class MainActivity extends AppCompatActivity {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE + 2) {
                     View centerView = snapHelper2.findSnapView(layoutManager2);
                     int pos = layoutManager2.getPosition(centerView);
+                    scrollSong.start();
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
+
+                        v.vibrate(500);
+                    }
+                    if (pos == 5 || pos == 7 || pos == 10 || pos == 12) {
+                        days[32] = " - ";
+                    } else if (pos == 3) {
+                        days[32] = " - ";
+                        days[31] = " - ";
+                        days[30] = " - ";
+                    } else {
+                        days[32] = "31";
+                        days[31] = "30";
+                        days[30] = "29";
+                    }
                     Log.e("Snapped Item Position:", "" + pos);
-                    dateToast[2] = String.valueOf(months.get(pos)) + " ";
+                    dateToast[2] = months.get(pos) + " ";
+
+
+
+                    int totalItemCount = layoutManager2.getChildCount();
+                    for (int i = 0; i < totalItemCount; i++){
+                        View childView = recyclerView.getChildAt(i);
+                        TextView childTextView = childView.findViewById(R.id.currentDate);
+                        String childTextViewText = (String) (childTextView.getText());
+
+                        if (childTextViewText.equals(months.get(pos)))
+                            childTextView.setTextColor(Color.RED);
+                        else
+                            childTextView.setTextColor(Color.GRAY);
+
+                    }
                 }
             }
         });
         yearsList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
 
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -389,35 +536,32 @@ public class MainActivity extends AppCompatActivity {
                     View centerView = snapHelper3.findSnapView(layoutManager3);
                     int pos = layoutManager3.getPosition(centerView);
                     Log.e("Snapped Item Position:", "" + pos);
-                    dateToast[3] = String.valueOf(years[pos]) + " ";
-                }
-                ///////////////
 
-            }
+                    scrollSong.start();
+                    Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+                    } else {
 
-                visibleItemCount = yearsList.getChildCount();
-                totalItemCount = layoutManager3.getItemCount();
-                firstVisibleItem = layoutManager3.findFirstVisibleItemPosition();
-
-                if (loading) {
-                    if (totalItemCount > previousTotal) {
-                        loading = false;
-                        previousTotal = totalItemCount;
+                        v.vibrate(500);
                     }
-                }
-                if (!loading && (totalItemCount - visibleItemCount)
-                        <= (firstVisibleItem + visibleThreshold)) {
-                    // End has been reached
+                    dateToast[3] = years[pos] + " ";
 
-                    Log.i("Yaeye!", "end called");
 
-                    // Do something
+                    int totalItemCount = layoutManager3.getChildCount();
+                    for (int i = 0; i < totalItemCount; i++){
+                        View childView = recyclerView.getChildAt(i);
+                        TextView childTextView = childView.findViewById(R.id.currentDate);
+                        String childTextViewText = (String) (childTextView.getText());
 
-                    loading = true;
+                        if (childTextViewText.equals(years[pos]))
+                            childTextView.setTextColor(Color.RED);
+                        else
+                            childTextView.setTextColor(Color.GRAY);
+
+                    }
+
                 }
             }
         });
@@ -433,8 +577,10 @@ public class MainActivity extends AppCompatActivity {
                                         for (String s : timeToast) {
                                             stringBuilder2.append(s);
                                         }
-                                        if(flag) Toast.makeText(getBaseContext(), String.valueOf(stringBuilder1), Toast.LENGTH_SHORT).show();
-                                        else Toast.makeText(getBaseContext(), String.valueOf(stringBuilder2), Toast.LENGTH_SHORT).show();
+                                        if (flag)
+                                            Toast.makeText(getBaseContext(), String.valueOf(stringBuilder1), Toast.LENGTH_SHORT).show();
+                                        else
+                                            Toast.makeText(getBaseContext(), String.valueOf(stringBuilder2), Toast.LENGTH_SHORT).show();
                                     }
                                 }
         );
