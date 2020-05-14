@@ -74,13 +74,15 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewDays"
+            android:overScrollMode="never"
             android:clipToPadding="false"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:background="@android:color/white"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewHours"
+            android:overScrollMode="never"
             android:clipToPadding="false"
             android:layout_width="wrap_content"
             android:background="@android:color/white"
@@ -89,6 +91,7 @@
             android:visibility="gone"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMinutes"
+            android:overScrollMode="never"
             android:clipToPadding="false"
             android:layout_width="wrap_content"
             android:background="@android:color/white"
@@ -97,13 +100,15 @@
             android:visibility="gone"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMonths"
+            android:overScrollMode="never"
             android:background="@android:color/white"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewYears"
-            android:layout_width="wrap_content"
+            android:overScrollMode="never"
+            android:layout_width="50dp"
             android:background="@android:color/white"
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
